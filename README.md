@@ -9,6 +9,6 @@ Mostly built as an expiriment in electron, js and other stuff.
 
 ## Getting Started
 
-1. Clone the git directory
-2. Run `npm install` in project root folder to install dependencies from `package.json`
-3. Run `npm start` in project root folder to start
+1. Clone the git directory.
+2. Run `npm install` in project root folder to install dependencies from `package.json`.
+3. Run `npm start` in project root folder to start app.
