@@ -1,0 +1,11 @@
+
+
+.talent-chosen{
+    color: purple;
+}
+.talent-not-chosen{
+    color:grey;
+}
+img.talent-not-chosen{
+    opacity:0.5;
+}

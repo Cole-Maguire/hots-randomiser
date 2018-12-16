@@ -1,6 +1,5 @@
 const baseUrl = "https://hotsapi.net/api/v1/";
 const fetch = require('node-fetch'); //Only required for runnning on Node. Browser consoles should support fetch natively.
-
 var printAbilities = async function (heroID) {
     //Debug
     // Print a summary of the heroes abilities, and what talents they provide
@@ -23,29 +22,26 @@ var getHeroList = async function () {
     //Returns anobject containing all heroes
 
     const response = await fetch(baseUrl + "heroes/");
-    const responseJSON = await response.json();
-    return responseJSON;
+    const rJSON =  await response.json();
+    heroList = rJSON;
+    return rJSON;
 }
 
 
-var getHero = async function (hero, heroList) {
+var getHero = function (hero) {
     //Get hero object for named hero, or if none is supplied, a random one.
     //Faster if a preexisting list of all objects is provided
     //Even faster if the heros name is provided as a string
     // Also accepts the index of the hero in the returned array, but don't do that as it's beyond stupid
+    if (heroList === undefined){
+        heroList = getHeroList();
+    }
+    
     if (typeof hero === "string") {
-        let response = await fetch([baseUrl, "heroes/", hero].join(""));
-            return response.json();
-
+        return heroList.filter(i => i.name === hero || i.short_name === hero)[0];
     } else {
-        let heroJSON;
-        if (heroList === undefined) {
-            heroList = await getHeroList()
-        }
-
-        heroID = (hero === undefined) ? Math.floor(Math.random() * heroJSON.length) : hero;
-
-        return await heroJSON[heroID];
+        heroID = (hero === undefined) ? Math.floor(Math.random() * heroList.length) : hero;
+        return heroList[heroID];
     } //Is there a way to make this object better defined?
 }
 
@@ -53,14 +49,14 @@ var getEmptyLevelDict = () => {
     return { 1: [], 4: [], 7: [], 10: [], 13: [], 16: [], 20: [] };
 }
 
-var getRandTalents = async function (heroID) {
+var getRandTalents = function (heroID) {
     //Returns one randomly selected talent object per level 
     //Accepts hero name as a string, a hero object or nothing to return a random heros talents
-    let hero
+    let hero = heroID;
     if (typeof heroID === 'object' && heroID !== null) {
         hero = heroID;
     } else {
-        hero = await getHero(heroID);
+        hero = getHero(heroID);
     }
 
     let levelTalents = hero.talents.reduce((map, talent) => {
@@ -70,7 +66,7 @@ var getRandTalents = async function (heroID) {
 
     for (i in levelTalents) {
         levelTalents[1].sort((a, b) => {
-            return a.sort - b.sort
+            return a.sort - b.sort;
         })
     }
 
@@ -93,8 +89,9 @@ var printTalents = async function (heroID) {
     for (i in levelTalents) {
         console.log("Level", i);
         levelTalents[i].map(j => {
-            console.log(j.sort === randTalents[j.level] ? "\t*" : "\t ", j.title);
+            console.log(j.sort === randTalents[i] ? "\t*" : "\t ", j.title);
         })
     }
 }
 
+var heroList;
