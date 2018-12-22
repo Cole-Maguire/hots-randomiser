@@ -24,9 +24,9 @@ async function fillHeroSelect() {
     heroSelect.onchange = heroSelectChange;
 }
 
-function heroSelectChange() {
+async function heroSelectChange() {
     let heroSelect = document.getElementById("hero-select");
-    var hero = getHero(heroSelect.value);
+    var hero = await getHero(heroSelect.value);
 
     changeHeroHeader(hero);
     changeHeroTalents(hero);
@@ -36,7 +36,7 @@ function changeHeroHeader(hero) {
     console.log(hero);
 
     document.getElementById("hero-name-header").innerText = hero.name;
-    document.getElementById("hero-image-header").src = hero.icon_url["92x93"];
+    document.getElementById("hero-image-header").src = profileImgURL+hero.shortName+".png"
 }
 
 function changeHeroTalents(hero) {
@@ -61,16 +61,14 @@ function changeHeroTalents(hero) {
             let talentImg = document.createElement('img');
             let talent = document.createElement('div');
 
-            talent.innerText = levelTalents[i][j].title;
+            talent.innerText = levelTalents[i][j].name;
             talent.className = levelTalents[i][j].sort === randTalents[i] ? "talent-chosen" : "talent-not-chosen";
-
-            talentImg.height = 64;
-            talentImg.width = 64;
-            talentImg.src = levelTalents[i][j].icon_url["64x64"];
+            talentImg.src = talentImgURL + levelTalents[i][j].icon
             talentImg.className = levelTalents[i][j].sort === randTalents[i] ? "talent-chosen" : "talent-not-chosen";
             
-            talentLevel.appendChild(talentImg);
             talentLevel.appendChild(talent);
+            talent.appendChild(talentImg);
+            
             
         }
 

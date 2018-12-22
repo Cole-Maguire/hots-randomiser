@@ -1,10 +1,14 @@
 
-
 .talent-chosen{
     color: purple;
 }
 .talent-not-chosen{
     color:grey;
+}
+img{
+    padding: 5px;
+    height:32px;
+    width: 32px;
 }
 img.talent-not-chosen{
     opacity:0.5;
