@@ -36,8 +36,10 @@ function changeHeroHeader(hero) {
     console.log(hero);
 
     document.getElementById("hero-name-header").innerText = hero.name;
-    document.getElementById("hero-image-header").src = profileImgURL+hero.shortName+".png"
+    document.getElementById("hero-image-header").src = profileImgURL + hero.shortName + ".png"
 }
+
+
 
 function changeHeroTalents(hero) {
     //remove any previously existing talents
@@ -51,12 +53,19 @@ function changeHeroTalents(hero) {
     let levelTalents = tempTalents[1];
 
     for (let i in levelTalents) {
-        let talentTitle = document.createElement('h3');
-        let talentLevel = document.createElement('div');
-        talentLevel.className = "hero-talent-level"
-        talentTitle.innerText = i;
-        talentMain.appendChild(talentLevel);
-        talentLevel.appendChild(talentTitle);
+        let levelTitle = document.createElement('h3');
+        let level = document.createElement('div');
+        let levelTalentDiv = document.createElement('div');
+
+        levelTalentDiv.classList.add("hero-level-talents");
+        //levelTalentDiv.classList.add("talent-display-none");
+        level.onclick = changeTalentDisplay(this);
+        level.className = "hero-level"
+        levelTitle.innerText = i;
+        talentMain.appendChild(level);
+        level.appendChild(levelTitle);
+        levelTitle.after(levelTalentDiv);
+
         for (let j in levelTalents[i]) {
             let talentImg = document.createElement('img');
             let talent = document.createElement('div');
@@ -65,14 +74,17 @@ function changeHeroTalents(hero) {
             talent.className = levelTalents[i][j].sort === randTalents[i] ? "talent-chosen" : "talent-not-chosen";
             talentImg.src = talentImgURL + levelTalents[i][j].icon
             talentImg.className = levelTalents[i][j].sort === randTalents[i] ? "talent-chosen" : "talent-not-chosen";
-            
-            talentLevel.appendChild(talent);
+
+            levelTalentDiv.appendChild(talent);
             talent.appendChild(talentImg);
-            
-            
+
+
         }
 
 
     }
 
+}
+function changeTalentDisplay(a,e){
+    a.classList.toggle('talent-display-none');  
 }

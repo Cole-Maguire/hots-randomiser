@@ -1,14 +1,40 @@
+@font-face { 
+    font-family: "Metronic"; 
+    src: local("Metronic"), url("https://static.heroesofthestorm.com/fonts/MetronicforBlizzard.woff") format("woff"); 
+    font-style: normal; 
+    font-weight: normal; }
 
+body{
+    font-family: "Metronic",sans-serif
+}
+#hero-talent-main{
+    display:flex;
+    flex-direction: row;
+    border: #490095 solid 2px;
+}
+.hero-level{
+    border: #490095 solid 2px;
+    margin: 3px;
+    padding: 3px;
+}
+.hero-level-talents{
+    display:flex;
+    flex-direction: column;
+}
+.hero-level-talents.talent-display-none{
+    display: none;
+}
 .talent-chosen{
-    color: purple;
+    color: #490095;
 }
 .talent-not-chosen{
     color:grey;
 }
-img{
-    padding: 5px;
+.hero-level img{
+    border: 5px;
     height:32px;
     width: 32px;
+    float: right;
 }
 img.talent-not-chosen{
     opacity:0.5;
