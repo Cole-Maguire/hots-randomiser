@@ -1,0 +1,8 @@
+{
+    "extends": "airbnb-base",
+    "env":{
+        "amd":true,
+        "browser": true,
+        "node":true
+    }
+}

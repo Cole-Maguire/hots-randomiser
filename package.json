@@ -7,8 +7,10 @@
     "start": "electron ."
   },
   "dependencies": {
+    "@google-cloud/bigquery": "^2.0.5",
     "asn1": "^0.2.4",
     "debug": "^3.2.6",
+    "dotenv": "^6.2.0",
     "ecc-jsbn": "^0.1.2",
     "electron": "^3.0.12",
     "fd-slicer": "^1.0.1",
@@ -57,7 +59,11 @@
     "strip-indent": "^1.0.1",
     "throttleit": "^0.0.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^5.11.1",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Cole-Maguire/hots-randomiser.git"
