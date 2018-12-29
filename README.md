@@ -1,8 +1,8 @@
 # hots-randomiser
 
-Pulls data from hotsapi, provides a random build, then does other as-yet-to-be-decided cool things.
+Pulls data from hotsapi, provides a random build, then does other as-yet-to-be-decided cool things. Essentially Ultimate Bravery for Heroes of the Storm.
 
-Mostly built as an expiriment in electron, js and other stuff.
+Mostly built as an experiment in electron, js, BigQuery and other stuff.
 
 ## Requirements
 * NodeJS (and other stuff installed by default with it (most importantly npm.)
