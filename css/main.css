@@ -7,14 +7,22 @@
 
 body {
     font-family: "Metronic", sans-serif;
-    color: whitesmoke;
-    background-color: darkmagenta;
+    color: black;
+    background-color: lightgray;
+}
+
+h1 {
+    color: rebeccapurple;
 }
 
 h3 {
     color: orange;
     padding: 4px;
     padding-left: 10 px;
+}
+
+#select-options{
+    margin:3px;
 }
 
 #hero-talent-main {
@@ -27,13 +35,19 @@ h3 {
     flex-direction: row;
     width: min-content;
     background: rgb(231, 231, 231);
-    background: linear-gradient(90deg, rgba(200, 200, 200, 1) 0%, rgba(200, 200, 200, 0.85) 70%, rgba(200, 200, 200, 0) 100%);
+    background: linear-gradient(90deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.85) 70%, rgba(255, 255, 255, 0) 100%);
     padding-right: 50px;
+    margin: 3px;
+}
+
+#hero-header h2 {
+    padding-left: 10px;
+    color: rebeccapurple;
 }
 
 .hero-level {
     border: #490095 solid 2px;
-    background-color: lightgrey;
+    background-color: white;
     margin: 3px;
     padding: 3px;
     display: flex;
@@ -55,7 +69,8 @@ h3 {
 }
 
 .talent-chosen {
-    color: black;
+    color: rebeccapurple;
+    font-weight: bold;
 }
 
 .talent-not-chosen {
