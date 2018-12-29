@@ -38,19 +38,26 @@ var getHero = function (hero) {
     //Get hero object for named hero, or if none is supplied, a random one.
     //Faster if a preexisting list of all objects is provided
     //Even faster if the heros name is provided as a string
-    // Also accepts the index of the hero in the returned array, but don't do that as it's beyond stupid
     let shortName;
+
+    function getRandHero() {
+        let heroID = Math.floor(Math.random() * heroList.length);
+        return heroList[heroID].short_name;
+    }
+
 
     if (heroList === undefined) {
         heroList = getHeroList();
     }
 
 
-    if (typeof hero === "string") {
+    if (hero === "Random") {
+        shortName = getRandHero();
+    }
+    else if (typeof hero === "string") {
         shortName = heroList.filter(i => i.name === hero || i.short_name === hero)[0].short_name;
     } else {
-        heroID = (hero === undefined) ? Math.floor(Math.random() * heroList.length) : hero;
-        shortName = heroList[heroID].short_name;
+        shortName = getRandHero();
     }
     getResponse = async () => {
         let response = await fetch(heroURL + shortName + ".json");

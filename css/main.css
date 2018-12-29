@@ -1,41 +1,74 @@
-@font-face { 
-    font-family: "Metronic"; 
-    src: local("Metronic"), url("https://static.heroesofthestorm.com/fonts/MetronicforBlizzard.woff") format("woff"); 
-    font-style: normal; 
-    font-weight: normal; }
+@font-face {
+    font-family: "Metronic";
+    src: local("Metronic"), url("https://static.heroesofthestorm.com/fonts/MetronicforBlizzard.woff") format("woff");
+    font-style: normal;
+    font-weight: normal;
+}
 
-body{
-    font-family: "Metronic",sans-serif
+body {
+    font-family: "Metronic", sans-serif;
+    color: whitesmoke;
+    background-color: darkmagenta;
 }
-#hero-talent-main{
-    display:flex;
+
+h3 {
+    color: orange;
+    padding: 4px;
+    padding-left: 10 px;
+}
+
+#hero-talent-main {
+    display: flex;
     flex-direction: row;
-    border: #490095 solid 2px;
 }
-.hero-level{
+
+#hero-header {
+    display: flex;
+    flex-direction: row;
+    width: min-content;
+    background: rgb(231, 231, 231);
+    background: linear-gradient(90deg, rgba(200, 200, 200, 1) 0%, rgba(200, 200, 200, 0.85) 70%, rgba(200, 200, 200, 0) 100%);
+    padding-right: 50px;
+}
+
+.hero-level {
     border: #490095 solid 2px;
+    background-color: lightgrey;
     margin: 3px;
     padding: 3px;
-}
-.hero-level-talents{
-    display:flex;
+    display: flex;
     flex-direction: column;
 }
-.hero-level-talents.talent-display-none{
+
+.hero-level-talents {
+    display: flex;
+    flex-direction: column;
+}
+
+.hero-level.talent-display-none {
+    border: transparent;
+    justify-content: center;
+}
+
+.talent-display-none>.hero-level-talents {
     display: none;
 }
-.talent-chosen{
-    color: #490095;
+
+.talent-chosen {
+    color: black;
 }
-.talent-not-chosen{
-    color:grey;
+
+.talent-not-chosen {
+    color: grey;
 }
-.hero-level img{
+
+.hero-level img {
     border: 5px;
-    height:32px;
+    height: 32px;
     width: 32px;
     float: right;
 }
-img.talent-not-chosen{
-    opacity:0.5;
+
+img.talent-not-chosen {
+    opacity: 0.5;
 }

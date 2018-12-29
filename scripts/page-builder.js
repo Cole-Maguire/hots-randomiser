@@ -1,4 +1,5 @@
-const hotsapi = require("../scripts/hotsapi")
+const hotsapi = require("../scripts/hotsapi");
+
 window.onload = async function () {
     await getHeroList();
 
@@ -6,7 +7,7 @@ window.onload = async function () {
 }
 
 async function fillHeroSelect() {
-    let heroSelect = document.getElementById("hero-select");
+    let heroSelect = document.querySelector("#hero-select");
     let randomOption = document.createElement("option");
 
     let heroNames = heroList.map(i => { return [i.short_name, i.name] });
@@ -18,10 +19,11 @@ async function fillHeroSelect() {
         heroOption.text = heroNames[i][1];
         heroSelect.options.add(heroOption);
     }
-    randomOption.value = undefined;
     randomOption.text = "Random";
     heroSelect.options.add(randomOption, 0);
     heroSelect.onchange = heroSelectChange;
+    heroSelect.selectedIndex = -1;
+    document.querySelector("label[for=hero-select]").innerText = "Select a hero: ";
 }
 
 async function heroSelectChange() {
@@ -33,18 +35,16 @@ async function heroSelectChange() {
 }
 
 function changeHeroHeader(hero) {
-    console.log(hero);
-
     document.getElementById("hero-name-header").innerText = hero.name;
-    document.getElementById("hero-image-header").src = profileImgURL + hero.shortName + ".png"
+    document.getElementById("hero-image-header").src = profileImgURL + hero.shortName + ".png";
 }
 
 
 
 function changeHeroTalents(hero) {
     //remove any previously existing talents
-    let talentMain = document.getElementById('hero-talent-main');
-    let matches = document.querySelectorAll('.hero-talent-level');
+    let talentMain = document.querySelector('#hero-talent-main');
+    let matches = talentMain.querySelectorAll('.hero-level');
     matches.forEach(i => i.remove());
 
     //add new talents
@@ -53,13 +53,13 @@ function changeHeroTalents(hero) {
     let levelTalents = tempTalents[1];
 
     for (let i in levelTalents) {
+        //create elements
         let levelTitle = document.createElement('h3');
         let level = document.createElement('div');
         let levelTalentDiv = document.createElement('div');
 
         levelTalentDiv.classList.add("hero-level-talents");
-        //levelTalentDiv.classList.add("talent-display-none");
-        level.onclick = changeTalentDisplay(this);
+        level.onclick = changeTalentDisplay;
         level.className = "hero-level"
         levelTitle.innerText = i;
         talentMain.appendChild(level);
@@ -77,14 +77,16 @@ function changeHeroTalents(hero) {
 
             levelTalentDiv.appendChild(talent);
             talent.appendChild(talentImg);
-
-
         }
-
-
     }
-
 }
-function changeTalentDisplay(a,e){
-    a.classList.toggle('talent-display-none');  
+function changeTalentDisplay(e) {
+    let path = e.composedPath();
+    for (i in path) {
+        if (path[i].matches('.hero-level')) {
+            path[i].classList.toggle('talent-display-none');
+            e.stopPropagation();
+            return;
+        }
+    }
 }
