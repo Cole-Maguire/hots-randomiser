@@ -24,6 +24,9 @@ h3 {
 #select-options{
     margin:3px;
 }
+#charts{
+    margin:3px;
+}
 
 #hero-talent-main {
     display: flex;

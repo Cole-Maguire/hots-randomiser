@@ -14,43 +14,77 @@ function changeTalentDisplay(e) {
   });
 }
 
+async function drawWRChart(rowsIn) {
+  const [[rows]] = await rowsIn; // Need to destructure two levels
+  const data = new google.visualization.arrayToDataTable([
+    ['Build', 'winrate'],
+    // toFixed returns str, so convert with parseFloat.
+    // || 0 to handle NaNs if num_games/count_winner is 0
+    ['Overall', parseFloat((100 * rows.count_winner_o / rows.num_games_o).toFixed(2)) || 0],
+    ['This Build', parseFloat((100 * rows.count_winner_f / rows.num_games_f).toFixed(2)) || 0],
+  ]);
+
+  const options = {
+    title: 'Winrate',
+    width: 400,
+    hAxis: {
+      viewWindow: {
+        min: 0,
+        max: 100,
+      },
+    },
+  };
+  const chart = new google.visualization.BarChart(document.querySelector('#chart-winrate'));
+  chart.draw(data, options);
+}
+
 function changeHeroTalents(hero) {
-  // remove any previously existing talents
   const talentMain = document.querySelector('#hero-talent-main');
-  const matches = talentMain.querySelectorAll('.hero-level');
-  matches.forEach(i => i.remove());
 
   // add new talents
   const [randTalents, levelTalents] = getRandTalents(hero);
 
-  Object.keys(levelTalents).forEach((i) => {
-    // create elements
+  // remove any previously existing talents
+  function removeOldTalents() {
+    const matches = talentMain.querySelectorAll('.hero-level');
+    matches.forEach(i => i.remove());
+  }
+  removeOldTalents();
+
+  Object.entries(levelTalents).forEach(([talentLevel, talentObj]) => {
+    // Create elements
     const levelTitle = document.createElement('h3');
-    const level = document.createElement('div');
-    const levelTalentDiv = document.createElement('div');
+    const levelDiv = document.createElement('div');
+    const talentDiv = document.createElement('div');
 
-    levelTalentDiv.classList.add('hero-level-talents');
-    level.onclick = changeTalentDisplay;
-    level.className = 'hero-level';
-    levelTitle.innerText = i;
-    talentMain.appendChild(level);
-    level.appendChild(levelTitle);
-    levelTitle.after(levelTalentDiv);
+    // Add them to DOM
+    talentMain.appendChild(levelDiv);
+    levelDiv.appendChild(levelTitle);
+    levelTitle.after(talentDiv);
+    talentDiv.classList.add('hero-level-talents');
 
-    Object.keys(levelTalents[i]).forEach((j) => {
+    // Edit Title/container
+    levelDiv.onclick = changeTalentDisplay;
+    levelDiv.className = 'hero-level';
+    levelTitle.innerText = talentLevel;
+
+    Object.values(talentObj).forEach((j) => { // Keys are meaningless for this subobject
       const talentImg = document.createElement('img');
-      const talent = document.createElement('div');
+      const talentText = document.createElement('div');
+      // Set talentText
+      talentText.innerText = j.name;
+      talentText.className = j.talentTreeId === randTalents[talentLevel] ? 'talent-chosen' : 'talent-not-chosen';
+      talentText.title = j.talentTreeId;
+      // Set talentImg. j.icon is the name of the file, not the file itself, fwiw
+      talentImg.src = talentImgURL + j.icon;
+      talentImg.className = j.talentTreeId === randTalents[talentLevel] ? 'talent-chosen' : 'talent-not-chosen';
 
-      talent.innerText = levelTalents[i][j].name;
-      talent.className = levelTalents[i][j].talentTreeId === randTalents[i] ? 'talent-chosen' : 'talent-not-chosen';
-      talent.title = levelTalents[i][j].talentTreeId;
-      talentImg.src = talentImgURL + levelTalents[i][j].icon;
-      talentImg.className = levelTalents[i][j].talentTreeId === randTalents[i] ? 'talent-chosen' : 'talent-not-chosen';
-
-      levelTalentDiv.appendChild(talent);
-      talent.appendChild(talentImg);
+      talentDiv.appendChild(talentText);
+      talentText.appendChild(talentImg);
     });
   });
+  // Get stats and draw chart
+  drawWRChart(getBigQueryStats(hero.name, randTalents));
 }
 
 async function heroSelectChange() {
@@ -64,7 +98,6 @@ async function heroSelectChange() {
 async function fillHeroSelect() {
   const heroSelect = document.querySelector('#hero-select');
   const randomOption = document.createElement('option');
-
   const heroNames = heroList.map(i => [i.short_name, i.name]);
 
   heroNames.sort();

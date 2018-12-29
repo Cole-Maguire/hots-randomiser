@@ -6,6 +6,12 @@
     <title>hots-randomiser</title>
     <script module src="../scripts/hotsapi.js"></script>
     <script module src="../scripts/page-builder.js"></script>
+    <!--Google charts library-->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        // Load the Visualization API and the corechart package.
+        google.charts.load('current', { 'packages': ['corechart'] });
+    </script>
     <link rel="stylesheet" href="../css/main.css">
     </style>
 </head>
@@ -20,6 +26,9 @@
         <h2 id="hero-name-header"></h2>
     </div>
     <div id="hero-talent-main"></div>
+    <div id="charts">
+        <div id="chart-winrate"></div>
+    </div>
 
 </body>
 
