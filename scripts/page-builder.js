@@ -1,78 +1,86 @@
-const hotsapi = require("../scripts/hotsapi")
-window.onload = async function () {
-    await getHeroList();
-
-    fillHeroSelect();
-}
-
-async function fillHeroSelect() {
-    let heroSelect = document.getElementById("hero-select");
-    let randomOption = document.createElement("option");
-
-    let heroNames = heroList.map(i => { return [i.short_name, i.name] });
-
-    heroNames.sort();
-    for (i in heroNames) {
-        let heroOption = document.createElement("option");
-        heroOption.value = heroNames[i][0];
-        heroOption.text = heroNames[i][1];
-        heroSelect.options.add(heroOption);
-    }
-    randomOption.value = undefined;
-    randomOption.text = "Random";
-    heroSelect.options.add(randomOption, 0);
-    heroSelect.onchange = heroSelectChange;
-}
-
-async function heroSelectChange() {
-    let heroSelect = document.getElementById("hero-select");
-    var hero = await getHero(heroSelect.value);
-
-    changeHeroHeader(hero);
-    changeHeroTalents(hero);
-}
+require('../scripts/hotsapi');
 
 function changeHeroHeader(hero) {
-    console.log(hero);
-
-    document.getElementById("hero-name-header").innerText = hero.name;
-    document.getElementById("hero-image-header").src = profileImgURL+hero.shortName+".png"
+  document.getElementById('hero-name-header').innerText = hero.name;
+  document.getElementById('hero-image-header').src = `${profileImgURL + hero.shortName}.png`;
+}
+function changeTalentDisplay(e) {
+  const path = e.composedPath();
+  Object(path).keys.forEach((i) => {
+    if (i.matches('.hero-level')) {
+      path[i].classList.toggle('talent-display-none');
+      e.stopPropagation();
+    }
+  });
 }
 
 function changeHeroTalents(hero) {
-    //remove any previously existing talents
-    let talentMain = document.getElementById('hero-talent-main');
-    let matches = document.querySelectorAll('.hero-talent-level');
-    matches.forEach(i => i.remove());
+  // remove any previously existing talents
+  const talentMain = document.querySelector('#hero-talent-main');
+  const matches = talentMain.querySelectorAll('.hero-level');
+  matches.forEach(i => i.remove());
 
-    //add new talents
-    let tempTalents = getRandTalents(hero);
-    let randTalents = tempTalents[0];
-    let levelTalents = tempTalents[1];
+  // add new talents
+  const [randTalents, levelTalents] = getRandTalents(hero);
 
-    for (let i in levelTalents) {
-        let talentTitle = document.createElement('h3');
-        let talentLevel = document.createElement('div');
-        talentLevel.className = "hero-talent-level"
-        talentTitle.innerText = i;
-        talentMain.appendChild(talentLevel);
-        talentLevel.appendChild(talentTitle);
-        for (let j in levelTalents[i]) {
-            let talentImg = document.createElement('img');
-            let talent = document.createElement('div');
+  Object.keys(levelTalents).forEach((i) => {
+    // create elements
+    const levelTitle = document.createElement('h3');
+    const level = document.createElement('div');
+    const levelTalentDiv = document.createElement('div');
 
-            talent.innerText = levelTalents[i][j].name;
-            talent.className = levelTalents[i][j].sort === randTalents[i] ? "talent-chosen" : "talent-not-chosen";
-            talentImg.src = talentImgURL + levelTalents[i][j].icon
-            talentImg.className = levelTalents[i][j].sort === randTalents[i] ? "talent-chosen" : "talent-not-chosen";
-            
-            talentLevel.appendChild(talent);
-            talent.appendChild(talentImg);
-            
-            
-        }
+    levelTalentDiv.classList.add('hero-level-talents');
+    level.onclick = changeTalentDisplay;
+    level.className = 'hero-level';
+    levelTitle.innerText = i;
+    talentMain.appendChild(level);
+    level.appendChild(levelTitle);
+    levelTitle.after(levelTalentDiv);
 
+    Object.keys(levelTalents[i]).forEach((j) => {
+      const talentImg = document.createElement('img');
+      const talent = document.createElement('div');
 
-    }
+      talent.innerText = levelTalents[i][j].name;
+      talent.className = levelTalents[i][j].talentTreeId === randTalents[i] ? 'talent-chosen' : 'talent-not-chosen';
+      talent.title = levelTalents[i][j].talentTreeId;
+      talentImg.src = talentImgURL + levelTalents[i][j].icon;
+      talentImg.className = levelTalents[i][j].talentTreeId === randTalents[i] ? 'talent-chosen' : 'talent-not-chosen';
 
+      levelTalentDiv.appendChild(talent);
+      talent.appendChild(talentImg);
+    });
+  });
 }
+
+async function heroSelectChange() {
+  const heroSelect = document.getElementById('hero-select');
+  const hero = await getHero(heroSelect.value);
+
+  changeHeroHeader(hero);
+  changeHeroTalents(hero);
+}
+
+async function fillHeroSelect() {
+  const heroSelect = document.querySelector('#hero-select');
+  const randomOption = document.createElement('option');
+
+  const heroNames = heroList.map(i => [i.short_name, i.name]);
+
+  heroNames.sort();
+  heroNames.forEach((i) => {
+    const heroOption = document.createElement('option');
+    [heroOption.value, heroOption.text] = i;
+    heroSelect.options.add(heroOption);
+  });
+  randomOption.text = 'Random';
+  heroSelect.options.add(randomOption, 0);
+  heroSelect.onchange = heroSelectChange;
+  heroSelect.selectedIndex = -1;
+  document.querySelector('label[for=hero-select]').innerText = 'Select a hero: ';
+}
+
+window.onload = async () => {
+  await getHeroList();
+  fillHeroSelect();
+};
