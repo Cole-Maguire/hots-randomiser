@@ -19,7 +19,10 @@ async function getBigQueryStats(heroName, talents) {
     COUNT(players) AS num_games_o,
     COUNTIF(players.winner = TRUE) AS count_winner_o,
     AVG(score.hero_damage) AS avg_hero_dmg_o,
-    AVG(score.siege_damage) AS avg_siege_dmg_o
+    AVG(score.siege_damage) AS avg_siege_dmg_o,
+    AVG(CAST(IFNULL(CAST(score.healing AS STRING),
+        '0')AS INT64)+CAST(IFNULL(CAST(score.self_healing AS STRING),
+        '0')AS INT64) ) AS avg_heal_o
   FROM
     \`hots-randomiser.hotsapi_eu.replays\` AS replays,
     UNNEST(players) AS players,
@@ -31,7 +34,10 @@ async function getBigQueryStats(heroName, talents) {
     COUNT(players) AS num_games_f,
     COUNTIF(players.winner = TRUE) AS count_winner_f,
     AVG(score.hero_damage) AS avg_hero_dmg_f,
-    AVG(score.siege_damage) AS avg_siege_dmg_f
+    AVG(score.siege_damage) AS avg_siege_dmg_f,
+    AVG(CAST(IFNULL(CAST(score.healing AS STRING),
+        '0')AS INT64)+CAST(IFNULL(CAST(score.self_healing AS STRING),
+        '0')AS INT64) ) AS avg_heal_f
   FROM
     \`hots-randomiser.hotsapi_eu.replays\` AS replays,
     UNNEST(players) AS players,

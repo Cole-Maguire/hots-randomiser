@@ -1,5 +1,181 @@
-require('../scripts/hotsapi');
+/* global profileImgURL, getRandTalents,getBigQueryStats,
+getHero,heroList,talentImgURL,getHeroList,Chart */
+/* The fact that ESLint doesn't pick up anything from hotsapi.js is infintely annoying */
 
+require('../scripts/hotsapi.js');
+require('chart.js');
+
+let wrChart;
+let dmgChart;
+
+// Chart Functions
+function removeChartData(chart) {
+  chart.data.datasets.forEach((dataset) => {
+    while (dataset.data.length !== 0) {
+      dataset.data.pop();
+    }
+  });
+  chart.update();
+}
+
+function updateChartData(chart, dataIn) {
+  chart.data.datasets.forEach((dataset, i) => {
+    dataIn.datasets[i].data.forEach(j => dataset.data.push(j));
+  });
+  chart.update();
+}
+
+function drawWRChart(filtered, overall) {
+  const ctx = document.getElementById('chart-winrate');
+  const chartData = {
+    labels: [
+      'Wins',
+      'Losses',
+    ],
+    datasets: [{
+      label: 'This Hero',
+      data: [overall.won, overall.num_games - overall.won],
+      backgroundColor: [
+        '#00dd00',
+        '#dd0000',
+      ],
+      hoverBackgroundColor: [
+        '#00cc00',
+        '#cc0000',
+      ],
+    }, {
+      label: 'This Build',
+      data: [filtered.won, filtered.num_games - filtered.won],
+      backgroundColor: [
+        '#00ff00',
+        '#ff0000',
+      ],
+      hoverBackgroundColor: [
+        '#00ee00',
+        '#ee0000',
+      ],
+    }],
+  };
+
+  const options = {
+    responsive: false,
+    maintainAspectRatio: false,
+    title: {
+      display: true,
+      text: 'Wins vs Losses',
+    },
+    legend: {
+      display: true,
+    },
+    tooltips: {
+      callbacks: {
+        label: (item, data) => {
+          // Override tooltip to show percentages and which build we're on
+          const set = data.datasets[item.datasetIndex].label; // dataset
+          const label = data.labels[item.index];
+          const value = data.datasets[item.datasetIndex].data[item.index];
+          // Breaking up percent calculation for readability.
+          // Add up the data in the dataset
+          const sum = data.datasets[item.datasetIndex].data.reduce((total, num) => total + num);
+          const percent = (value / sum * 100).toFixed(2);
+          return `${set} ${label}: ${percent}% with ${value} games`;
+        },
+      },
+    },
+  };
+
+  if (wrChart === undefined) {
+    wrChart = new Chart(ctx, {
+      type: 'pie',
+      data: chartData,
+      options,
+    });
+  } else {
+    removeChartData(wrChart);
+    updateChartData(wrChart, chartData); // TODO
+  }
+}
+
+function drawDmgChart(filtered, overall) {
+  const ctx = document.getElementById('chart-dmg');
+  const chartData = {
+    labels: [
+      'This Hero',
+      'This Build',
+    ],
+    datasets: [{
+      label: 'Hero Damage',
+      data: [overall.hero_dmg, filtered.hero_dmg],
+      backgroundColor: [
+        '#aa0000',
+        '#ff0000',
+      ],
+    },
+    {
+      label: 'Siege Damage',
+      data: [overall.siege_dmg, filtered.siege_dmg],
+      backgroundColor: [
+        '#00aa00',
+        '#00ff00',
+      ],
+    },
+    {
+      label: 'Healing',
+      data: [overall.heal, filtered.heal],
+      backgroundColor: [
+        '#0000aa',
+        '#0000ff',
+      ],
+    },
+    ],
+  };
+
+  const options = {
+    responsive: false,
+    maintainAspectRatio: false,
+    title: {
+      display: true,
+      text: 'Damage and Healing Statistics',
+    },
+    legend: {
+      display: true,
+    },
+    scales: {
+      xAxes: [{
+        stacked: true,
+      }],
+      yAxes: [{
+        stacked: true,
+      }],
+    },
+  };
+
+  if (dmgChart === undefined) {
+    dmgChart = new Chart(ctx, {
+      type: 'bar',
+      data: chartData,
+      options,
+    });
+  } else {
+    removeChartData(dmgChart);
+    updateChartData(dmgChart, chartData); // TODO
+  }
+}
+async function drawCharts(rowsIn) {
+  const [[rows]] = await rowsIn;
+
+  drawWRChart(
+    { num_games: rows.num_games_f, won: rows.count_winner_f },
+    { num_games: rows.num_games_o, won: rows.count_winner_o },
+  );
+  drawDmgChart(
+    { hero_dmg: rows.avg_hero_dmg_f, siege_dmg: rows.avg_siege_dmg_f, heal: rows.avg_heal_f },
+    { hero_dmg: rows.avg_hero_dmg_o, siege_dmg: rows.avg_siege_dmg_o, heal: rows.avg_heal_o },
+  );
+}
+
+
+// Changing Heroes - DOM
 function changeHeroHeader(hero) {
   document.getElementById('hero-name-header').innerText = hero.name;
   document.getElementById('hero-image-header').src = `${profileImgURL + hero.shortName}.png`;
@@ -13,31 +189,6 @@ function changeTalentDisplay(e) {
     }
   });
 }
-
-async function drawWRChart(rowsIn) {
-  const [[rows]] = await rowsIn; // Need to destructure two levels
-  const data = new google.visualization.arrayToDataTable([
-    ['Build', 'winrate'],
-    // toFixed returns str, so convert with parseFloat.
-    // || 0 to handle NaNs if num_games/count_winner is 0
-    ['Overall', parseFloat((100 * rows.count_winner_o / rows.num_games_o).toFixed(2)) || 0],
-    ['This Build', parseFloat((100 * rows.count_winner_f / rows.num_games_f).toFixed(2)) || 0],
-  ]);
-
-  const options = {
-    title: 'Winrate',
-    width: 400,
-    hAxis: {
-      viewWindow: {
-        min: 0,
-        max: 100,
-      },
-    },
-  };
-  const chart = new google.visualization.BarChart(document.querySelector('#chart-winrate'));
-  chart.draw(data, options);
-}
-
 function changeHeroTalents(hero) {
   const talentMain = document.querySelector('#hero-talent-main');
 
@@ -84,9 +235,8 @@ function changeHeroTalents(hero) {
     });
   });
   // Get stats and draw chart
-  drawWRChart(getBigQueryStats(hero.name, randTalents));
+  drawCharts(getBigQueryStats(hero.name, randTalents));
 }
-
 async function heroSelectChange() {
   const heroSelect = document.getElementById('hero-select');
   const hero = await getHero(heroSelect.value);
@@ -95,6 +245,7 @@ async function heroSelectChange() {
   changeHeroTalents(hero);
 }
 
+// Initialise Page - DOM
 async function fillHeroSelect() {
   const heroSelect = document.querySelector('#hero-select');
   const randomOption = document.createElement('option');
@@ -112,7 +263,6 @@ async function fillHeroSelect() {
   heroSelect.selectedIndex = -1;
   document.querySelector('label[for=hero-select]').innerText = 'Select a hero: ';
 }
-
 window.onload = async () => {
   await getHeroList();
   fillHeroSelect();

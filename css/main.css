@@ -27,6 +27,10 @@ h3 {
 #charts{
     margin:3px;
 }
+#charts canvas{
+    width:40%;
+    display:inline-flex;
+}
 
 #hero-talent-main {
     display: flex;

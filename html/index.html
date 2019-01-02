@@ -6,12 +6,6 @@
     <title>hots-randomiser</title>
     <script module src="../scripts/hotsapi.js"></script>
     <script module src="../scripts/page-builder.js"></script>
-    <!--Google charts library-->
-    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-        // Load the Visualization API and the corechart package.
-        google.charts.load('current', { 'packages': ['corechart'] });
-    </script>
     <link rel="stylesheet" href="../css/main.css">
     </style>
 </head>
@@ -27,7 +21,10 @@
     </div>
     <div id="hero-talent-main"></div>
     <div id="charts">
-        <div id="chart-winrate"></div>
+        <!-- We have to put the display:inline-flex here, otherwise the chart.JS library just overwrites the style in
+        the externally linked stylesheet.-->
+        <canvas id="chart-winrate" style="display:inline-flex"></canvas>
+        <canvas id="chart-dmg" style="display:inline-flex"></canvas>
     </div>
 
 </body>

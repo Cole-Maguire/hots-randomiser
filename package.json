@@ -9,6 +9,7 @@
   "dependencies": {
     "@google-cloud/bigquery": "^2.0.5",
     "asn1": "^0.2.4",
+    "chart.js": "^2.7.3",
     "debug": "^3.2.6",
     "dotenv": "^6.2.0",
     "ecc-jsbn": "^0.1.2",
