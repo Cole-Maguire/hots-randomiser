@@ -1,4 +1,4 @@
-import BigQuery from '@google-cloud/bigquery';
+import BigQuery from '../node_modules/@google-cloud/bigquery';
 // const fetch = require('node-fetch');
 
 

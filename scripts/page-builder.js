@@ -1,6 +1,6 @@
-import * as Chart from 'chart.js';
+import * as Chart from '../node_modules/chart.js';
 /* global profileImgURL, getRandTalents,getBigQueryStats,
-getHero,heroList,talentImgURL,getHeroList,Chart */
+getHero,heroList,talentImgURL,getHeroList */
 /* The fact that ESLint doesn't pick up anything from hotsapi.js is infintely annoying */
 
 // import * as hotsapi from '../scripts/hotsapi.js';
