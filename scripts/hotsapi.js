@@ -1,7 +1,8 @@
-const fetch = require('node-fetch');
-// Only required for runnning on Node. Browser consoles should support fetch natively.
-const { BigQuery } = require('@google-cloud/bigquery');
-require('dotenv').config();
+import BigQuery from '@google-cloud/bigquery';
+// const fetch = require('node-fetch');
+
+
+// require('dotenv').config();
 
 const hotsApiURL = 'https://hotsapi.net/api/v1/'; // hotsAPI technically has talent information, but it's unreliable, full of deprecated stuff
 const heroURL = 'https://raw.githubusercontent.com/heroespatchnotes/heroes-talents/master/hero/';// shortname.json
@@ -13,49 +14,75 @@ let heroList;
 async function getBigQueryStats(heroName, talents) {
   // Creates a client
   const bigquery = new BigQuery();
-  const query = `SELECT *
-  FROM ( -- overall
+  // BigQuery doesn't support StoredProcs, which is very annoying.
+  const query = `  
+  -- OVERALL
   SELECT
-    COUNT(players) AS num_games_o,
-    COUNTIF(players.winner = TRUE) AS count_winner_o,
-    AVG(score.hero_damage) AS avg_hero_dmg_o,
-    AVG(score.siege_damage) AS avg_siege_dmg_o,
+    'Overall' as stat_type,
+    COUNT(players) AS num_games,
+    COUNTIF(players.winner = TRUE) AS won,
+    AVG(score.hero_damage) AS avg_hero_dmg,
+    AVG(score.siege_damage) AS avg_siege_dmg,
     AVG(CAST(IFNULL(CAST(score.healing AS STRING),
-        '0')AS INT64)+CAST(IFNULL(CAST(score.self_healing AS STRING),
-        '0')AS INT64) ) AS avg_heal_o
+          '0')AS INT64)+CAST(IFNULL(CAST(score.self_healing AS STRING),
+          '0')AS INT64) ) AS avg_heal
   FROM
     \`hots-randomiser.hotsapi_eu.replays\` AS replays,
     UNNEST(players) AS players,
     UNNEST(score) AS score
   WHERE
-    players.hero like @heroName) AS u
-  CROSS JOIN ( -- filtered
+    players.hero LIKE @heroName
+    
+  UNION ALL
+  
+  -- PLAYER ON HERO
   SELECT
+    'Player' as stat_type,
+    COUNT(players) AS num_games,
+    COUNTIF(players.winner = TRUE) AS won,
+    AVG(score.hero_damage) AS avg_hero_dmg,
+    AVG(score.siege_damage) AS avg_siege_dmg,
+    AVG(CAST(IFNULL(CAST(score.healing AS STRING),
+          '0')AS INT64)+CAST(IFNULL(CAST(score.self_healing AS STRING),
+          '0')AS INT64) ) AS avg_heal
+  FROM
+    \`hots-randomiser.hotsapi_eu.replays\` AS replays,
+    UNNEST(players) AS players,
+    UNNEST(score) AS score
+  WHERE
+    players.hero LIKE @heroName
+    AND players.battletag_name LIKE @battletag_name
+    
+  UNION ALL
+  
+    -- FILTERED
+  SELECT
+    'Filtered' as stat_type,
     COUNT(players) AS num_games_f,
-    COUNTIF(players.winner = TRUE) AS count_winner_f,
-    AVG(score.hero_damage) AS avg_hero_dmg_f,
-    AVG(score.siege_damage) AS avg_siege_dmg_f,
+    COUNTIF(players.winner = TRUE) AS won,
+    AVG(score.hero_damage) AS avg_hero_dmg,
+    AVG(score.siege_damage) AS avg_siege_dmg,
     AVG(CAST(IFNULL(CAST(score.healing AS STRING),
-        '0')AS INT64)+CAST(IFNULL(CAST(score.self_healing AS STRING),
-        '0')AS INT64) ) AS avg_heal_f
+          '0')AS INT64)+CAST(IFNULL(CAST(score.self_healing AS STRING),
+          '0')AS INT64) ) AS avg_heal
   FROM
     \`hots-randomiser.hotsapi_eu.replays\` AS replays,
     UNNEST(players) AS players,
     UNNEST(score) AS score
   WHERE
-    (players.talents._1 like @talent1)
-    AND (players.talents._4 like @talent4
+    (players.talents._1 LIKE @talent1)
+    AND (players.talents._4 LIKE @talent4
       OR players.talents._4 IS NULL)
-    AND (players.talents._7 like @talent7
+    AND (players.talents._7 LIKE @talent7
       OR players.talents._7 IS NULL)
-    AND (players.talents._10 like @talent10
+    AND (players.talents._10 LIKE @talent10
       OR players.talents._10 IS NULL)
-    AND (players.talents._13 like @talent13
+    AND (players.talents._13 LIKE @talent13
       OR players.talents._13 IS NULL)
-    AND (players.talents._16 like @talent16
+    AND (players.talents._16 LIKE @talent16
       OR players.talents._16 IS NULL)
-    AND (players.talents._20 like @talent20
-      OR players.talents._20 IS NULL)) AS t;`;
+    AND (players.talents._20 LIKE @talent20
+      OR players.talents._20 IS NULL)`;
 
   const options = {
     query,
@@ -69,6 +96,7 @@ async function getBigQueryStats(heroName, talents) {
       talent13: talents[13],
       talent16: talents[16],
       talent20: talents[20],
+      battletag_name: localStorage.getItem('battletag'),
     },
     location: 'EU',
   };
@@ -76,7 +104,7 @@ async function getBigQueryStats(heroName, talents) {
   return bigquery.query(options);
 }
 async function getHeroList() {
-  // Returns anobject containing all heroes
+  // Returns an object containing all heroes
 
   const response = await fetch(`${hotsApiURL}heroes/`);
   const rJSON = await response.json();

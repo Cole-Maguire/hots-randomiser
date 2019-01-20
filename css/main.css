@@ -94,3 +94,10 @@ h3 {
 img.talent-not-chosen {
     opacity: 0.5;
 }
+input[name=battletag-input]:hover{
+    color:black;
+}
+input[name=battletag-input]:active{
+    font-size:14px;
+    color:black;
+}

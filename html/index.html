@@ -4,14 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <title>hots-randomiser</title>
-    <script module src="../scripts/hotsapi.js"></script>
-    <script module src="../scripts/page-builder.js"></script>
+    <script src="../scripts/hotsapi.js" type = "module"></script>
+    <script src="../scripts/page-builder.js" type = "module"></script>
     <link rel="stylesheet" href="../css/main.css">
     </style>
 </head>
 
 <body>
     <h1>Heroes of the Storm Build Randomiser</h1>
+    <input type="text" id = "battletag-input" name="battletag-input" placeholder="Enter your battletag" onchange="e">
     <div id="select-options">
         <label for="hero-select">Loading: </label><select id="hero-select"></select>
     </div>

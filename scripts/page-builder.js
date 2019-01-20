@@ -1,9 +1,10 @@
+import * as Chart from 'chart.js';
 /* global profileImgURL, getRandTalents,getBigQueryStats,
 getHero,heroList,talentImgURL,getHeroList,Chart */
 /* The fact that ESLint doesn't pick up anything from hotsapi.js is infintely annoying */
 
-require('../scripts/hotsapi.js');
-require('chart.js');
+// import * as hotsapi from '../scripts/hotsapi.js';
+
 
 let wrChart;
 let dmgChart;
@@ -96,35 +97,39 @@ function drawWRChart(filtered, overall) {
   }
 }
 
-function drawDmgChart(filtered, overall) {
+function drawDmgChart(filtered, overall, player) {
   const ctx = document.getElementById('chart-dmg');
   const chartData = {
     labels: [
       'This Hero',
       'This Build',
+      'You on this Hero',
     ],
     datasets: [{
       label: 'Hero Damage',
-      data: [overall.hero_dmg, filtered.hero_dmg],
+      data: [overall.avg_hero_dmg, filtered.avg_hero_dmg, player.avg_hero_dmg],
       backgroundColor: [
         '#aa0000',
         '#ff0000',
+        '#990000',
       ],
     },
     {
       label: 'Siege Damage',
-      data: [overall.siege_dmg, filtered.siege_dmg],
+      data: [overall.avg_siege_dmg, filtered.avg_siege_dmg, player.avg_siege_dmg],
       backgroundColor: [
         '#00aa00',
         '#00ff00',
+        '#009900',
       ],
     },
     {
       label: 'Healing',
-      data: [overall.heal, filtered.heal],
+      data: [overall.avg_heal, filtered.avg_heal, player.avg_heal],
       backgroundColor: [
         '#0000aa',
         '#0000ff',
+        '#000099',
       ],
     },
     ],
@@ -162,20 +167,28 @@ function drawDmgChart(filtered, overall) {
   }
 }
 async function drawCharts(rowsIn) {
-  const [[rows]] = await rowsIn;
+  const [rows] = await rowsIn;
 
-  drawWRChart(
-    { num_games: rows.num_games_f, won: rows.count_winner_f },
-    { num_games: rows.num_games_o, won: rows.count_winner_o },
-  );
-  drawDmgChart(
-    { hero_dmg: rows.avg_hero_dmg_f, siege_dmg: rows.avg_siege_dmg_f, heal: rows.avg_heal_f },
-    { hero_dmg: rows.avg_hero_dmg_o, siege_dmg: rows.avg_siege_dmg_o, heal: rows.avg_heal_o },
-  );
+  const [filtered] = rows.filter(i => i.stat_type === 'Filtered');
+  const [overall] = rows.filter(i => i.stat_type === 'Overall');
+  const [player] = rows.filter(i => i.stat_type === 'Player');
+
+  drawWRChart(filtered, overall, player);
+  drawDmgChart(filtered, overall, player);
 }
 
 
 // Changing Heroes - DOM
+function setBattletag() {
+  localStorage.setItem('battletag', document.querySelector('#battletag-input').value);
+}
+
+function getBattletagDefault() {
+  const localTemp = localStorage.getItem('battletag')
+  if (localTemp != null) {
+    document.querySelector('#battletag-input').value = localTemp;
+  }
+}
 function changeHeroHeader(hero) {
   document.getElementById('hero-name-header').innerText = hero.name;
   document.getElementById('hero-image-header').src = `${profileImgURL + hero.shortName}.png`;
@@ -240,7 +253,7 @@ function changeHeroTalents(hero) {
 async function heroSelectChange() {
   const heroSelect = document.getElementById('hero-select');
   const hero = await getHero(heroSelect.value);
-
+  setBattletag();
   changeHeroHeader(hero);
   changeHeroTalents(hero);
 }
@@ -263,7 +276,10 @@ async function fillHeroSelect() {
   heroSelect.selectedIndex = -1;
   document.querySelector('label[for=hero-select]').innerText = 'Select a hero: ';
 }
+
+
 window.onload = async () => {
   await getHeroList();
   fillHeroSelect();
+  getBattletagDefault();
 };
