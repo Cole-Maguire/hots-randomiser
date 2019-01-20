@@ -13,7 +13,6 @@
     "debug": "^3.2.6",
     "dotenv": "^6.2.0",
     "ecc-jsbn": "^0.1.2",
-    "electron": "^3.0.12",
     "fd-slicer": "^1.0.1",
     "find-up": "^1.1.2",
     "indent-string": "^2.1.0",
